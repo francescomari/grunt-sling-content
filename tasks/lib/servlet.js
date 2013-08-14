@@ -65,21 +65,19 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
 
     // Create the request
 
-    var req = request.post(this.getDefaultOptions(parent), setProperties);
+    var req = request.post(this.getDefaultOptions(parent), callback);
 
     // Add form
 
+    var name = path.basename(file);
+
     var form = req.form();
 
-    form.append("*", fs.createReadStream(file));
+    form.append("./" + name, fs.createReadStream(file));
 
-    function setProperties(err) {
-        if (err) {
-            return callback(err);
-        }
-
-        self.create(parent + "/" + path.basename(file), properties, callback);
-    }
+    Object.keys(properties).forEach(function (key) {
+        form.append("./" + name + "/" + key, properties[key]);
+    });
 };
 
 exports.Post = Post;
