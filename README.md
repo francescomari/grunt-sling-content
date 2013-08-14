@@ -1,4 +1,4 @@
-# Grunt Sling task
+# Grunt Sling Content task
 
 This task uses the Sling POST servlet to upload content to a running Sling instance.
 

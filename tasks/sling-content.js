@@ -6,7 +6,7 @@ var async = require("async");
 var servlet = require("./lib/servlet");
 
 module.exports = function (grunt) {
-    grunt.registerMultiTask("sling", function () {
+    grunt.registerMultiTask("sling-content", function () {
         var options = this.options({
             host: "localhost",
             port: 8080,

@@ -1,12 +1,12 @@
 {
-    "name": "grunt-sling",
+    "name": "grunt-sling-content",
     "version": "0.0.1",
     "license": "MIT",
     "author": "Francesco Mari <mari.francesco@gmail.com>",
     "description": "Deploy local content to a Sling instance",
     "repository": {
         "type": "git",
-        "url": "http://github.com/francescomari/grunt-sling.git"
+        "url": "http://github.com/francescomari/grunt-sling-content.git"
     },
     "dependencies": {
         "grunt": "~0.4.1",
