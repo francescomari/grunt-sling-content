@@ -24,3 +24,22 @@ The task accept the following options:
 This task is a multi-task, so its configuration semantics follow what is already described in the [Grunt documentation](http://gruntjs.com/configuring-tasks). 
 
 The task only accepts input paths which refer to existing folders. Each folder is mapped to the root of the virtual filesystem managed by Sling. In example, if you give as input to the task the folder `root/content` (relative to the root of your project), and this folder contains a file called `page.html`, the path in the Sling repository will be `/page.html`.
+
+## Examples
+
+To try example applications, some preparation steps are required. First of all, you need to create this repository and to install the dependencies required by the task.
+
+```
+git clone https://github.com/francescomari/grunt-sling-content
+cd grunt-sling-content
+npm install
+```
+
+In addition, you have to run a Sling instance on your local machine, at the default port (`8080`). Each example application also use the default `admin` user to push content to the repository.
+
+Once everything is in place, you can try the example application you prefer by invoking `grunt` in its root. For the `blog` example application, you would do something like
+
+```
+cd examples/blog
+grunt
+```
