@@ -37,22 +37,19 @@ Post.prototype.getAuth = function () {
     };
 };
 
-Post.prototype.create = function (path, properties, callback) {
-
-    // Normalize path, remove last slash
-
-    path = removeTrailingSlash(path);
-
-    // Setup options
-
-    var options = {
-        url: this.getUrl(path),
+Post.prototype.getDefaultOptions = function (path) {
+    return {
+        url: this.getUrl(removeTrailingSlash(path)),
+        headers: { "Accept": "application/json" },
         auth: this.getAuth()
     };
+};
+
+Post.prototype.create = function (path, properties, callback) {
 
     // Create the request
 
-    var req = request.post(options, callback);
+    var req = request.post(this.getDefaultOptions(path), callback);
 
     // Add form
 
@@ -66,20 +63,9 @@ Post.prototype.create = function (path, properties, callback) {
 Post.prototype.createFile = function (parent, file, properties, callback) {    
     var self = this;
 
-    // Normalize parent, remove last slash
-
-    parent = removeTrailingSlash(parent);
-
-    // Setup options
-
-    var options = {
-        url: this.getUrl(parent),
-        auth: this.getAuth()
-    };    
-
     // Create the request
 
-    var req = request.post(options, setProperties);
+    var req = request.post(this.getDefaultOptions(parent), setProperties);
 
     // Add form
 

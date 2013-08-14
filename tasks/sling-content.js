@@ -23,11 +23,11 @@ module.exports = function (grunt) {
         function postRoots(file) {
             file.src.forEach(function (root) {
                 if (grunt.file.exists(root) === false) {
-                    grunt.fail.fatal("The directory " + root + " does not exist");
+                    grunt.fatal(util.format("The directory %s does not exist.", root));
                 }
 
                 if (grunt.file.isDir(root) === false) {
-                    grunt.file.fatal("The path " + root + " is not a directory");
+                    grunt.fatal(util.format("The path %s is not a directory.", root));
                 }
             });
 
@@ -96,12 +96,30 @@ module.exports = function (grunt) {
                 return Object.keys(descriptor).reduce(toProperties, initial || {});
             }
 
+            // Wraps a function to report warnings at servlet failures
+
+            function withWarnings(done) {
+                return function (err, response, body) {
+                    if (err) {
+                        return done(err);
+                    }
+
+                    var b = JSON.parse(body);
+
+                    if (response.statusCode < 200 || response.statusCode >= 300) {
+                        grunt.warn(util.format("Error writing %s: %s: %s.", b.path, b.error.class, b.error.message));
+                    }
+
+                    done(err, response, body);
+                };
+            }
+
             // Creates a task to create/update a file
 
             function toFileTasks(file) {
                 return function (done) {
                     grunt.log.writeln("File: " + path.join(root, file));
-                    postServlet.createFile(resource, path.join(root, file), propertiesFor(file), done);
+                    postServlet.createFile(resource, path.join(root, file), propertiesFor(file), withWarnings(done));
                 };
             }
 
@@ -117,7 +135,7 @@ module.exports = function (grunt) {
                         "jcr:primaryType": "sling:Folder"
                     });
 
-                    postServlet.create(resource + directory, properties, done);
+                    postServlet.create(resource + directory, properties, withWarnings(done));
                 };
             }
 
@@ -140,7 +158,7 @@ module.exports = function (grunt) {
             function toNodeTask(name) {
                 return function (done) {
                     grunt.log.writeln("Node: " + path.join(root, name + ".json"));
-                    postServlet.create(resource + name, propertiesFor(name), done);
+                    postServlet.create(resource + name, propertiesFor(name), withWarnings(done));
                 };
             }
 
