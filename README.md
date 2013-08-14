@@ -4,11 +4,13 @@ This task uses the Sling POST servlet to upload content to a running Sling insta
 
 Give a root folder to start the mapping from, the task will traverse it recursively and performs the following actions:
 
--	For each folder, a new node is created of type `nt:unstructured`. If a `.json` file exists with the same name as the directory, this file is read to obtain additional properties for the node representing the folder.
+-	For each folder, a new node is created of type `sling:Folder`. If a `.json` file exists with the same name as the directory, this file is read to obtain additional properties for the node representing the folder.
 -	For each file which is not a `.json` file, a new node is created of type `nt:file`. If a `.json` file exists with the same name as the directory, this file is read to obtain additional properties for the node representing the file.
 -	For each `.json` file, if the file has not been used in one of the following steps, then it is used to create a new node. The properties contained in this file (including `jcr:primaryType`) will be used when the node is created.
 
 The content can be uploaded multiple times. If the resource doesn't exist, the Sling POST servlet will create a new one; otherwise, the existing resource will be updated with new property values and file contents, if they changed after the last upload.
+
+The task can only push new changes to nodes and properties to the Sling instance, but it will never remove anything. If you want to remove a node or a property which has been pushed by a previous invocation of the task, you have to do it manually. In this case, the Content Explorer embedded in Sling can be helpful.
 
 ## Options
 
