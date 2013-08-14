@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<%
+    var blog = currentNode.getParent();
+%>
+
+<html>
+    <head>
+        <title><%= blog.title %></title>
+    </head>
+    <body>
+        <h1><%= currentNode.title %></h1>
+
+        <p><%= currentNode.content %></p>
+
+        <p><a href="<%= blog.path %>">Return to the blog</a></p>
+    </body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<%
+    var title = currentNode.title;
+
+    var posts = [];
+
+    var nodes = currentNode.getNodes();
+
+    for (i in nodes) {
+        posts.push({
+            title: nodes[i].title,
+            path: nodes[i].path            
+        });
+    }
+%>
+
+<html>
+    <head>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <h1><%= title %></h1>
+
+        <p><%= currentNode.description %></p>
+
+        <% if (currentNode.hasNodes()) { %>
+            <ul>
+                <% for (i in posts) { %>
+                    <li><a href="<%= posts[i].path %>"><%= posts[i].title %></a></li>
+                <% } %>
+            </ul>
+        <% } else { %>
+            <p>No posts available.</p>
+        <% } %>
+    </body>
+</html>

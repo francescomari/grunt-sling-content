@@ -1,0 +1,6 @@
+{
+    "jcr:primaryType": "sling:Folder",
+    "sling:resourceType": "blog/page",
+    "title": "A blog",
+    "description": "Outstanding ideas for amazing people."
+}

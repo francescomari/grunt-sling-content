@@ -1,0 +1,6 @@
+{
+    "jcr:primaryType": "sling:Folder",
+    "sling:resourceType": "blog/post",
+    "title": "First post",
+    "content": "This is my first post. Enjoy it."
+}
