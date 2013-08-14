@@ -112,7 +112,12 @@ module.exports = function (grunt) {
             function toDirectoryTask(directory) {
                 return function (done) {
                     grunt.log.writeln("Dir : " + path.join(root, directory));
-                    postServlet.create(resource + directory, propertiesFor(directory), done);
+
+                    var properties = propertiesFor(directory, {
+                        "jcr:primaryType": "sling:Folder"
+                    });
+
+                    postServlet.create(resource + directory, properties, done);
                 };
             }
 
