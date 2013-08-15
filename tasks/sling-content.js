@@ -14,6 +14,10 @@ module.exports = function (grunt) {
             pass: "admin"
         });
 
+        grunt.verbose.writeln("Host: " + options.host);
+        grunt.verbose.writeln("Port: " + options.port);
+        grunt.verbose.writeln("User: " + options.user);
+
         var done = this.async();
 
         var postServlet = new servlet.Post(options);
