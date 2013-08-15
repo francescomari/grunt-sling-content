@@ -12,6 +12,61 @@ The content can be uploaded multiple times. If the resource doesn't exist, the S
 
 The task can only push new changes to nodes and properties to the Sling instance, but it will never remove anything. If you want to remove a node or a property which has been pushed by a previous invocation of the task, you have to do it manually. In this case, the Content Explorer embedded in Sling can be helpful.
 
+## Installation
+
+To use this task, you have to install Grunt first. Please follow the [installation instructions](http://gruntjs.com/getting-started) for Grunt in the official documentation.
+
+To install the task, simply invoke NPM from the root of your project.
+
+```
+npm install grunt-sling-content
+```
+
+Optionally, you can save the dependency in your `package.json` by adding a command line option as shown below.
+
+```
+npm install --save-dev grunt-sling-content
+```
+
+## Usage
+
+Let's assume you have a project with the following directory structure:
+
+```
+project/
+	root/
+		apps/
+			blog/
+				page/
+					GET.esp
+				post/
+					GET.esp
+		content/
+			blog/
+				first-post.json
+			blog.json
+	package.json
+	Gruntfile.js
+```
+
+To publish to a running Sling instance the content of the `root` folder, you have to update the contents of `Gruntfile.js` to reference and configure the task.
+
+```
+module.exports = function (grunt) {
+    grunt.initConfig({
+        "sling-content": {
+            root: "root"
+        }
+    });
+
+    grunt.loadNpmTasks("grunt-sling-content");
+
+    grunt.registerTask("default", ["sling-content"]);
+};
+```
+
+Invoking the task to push the content in the `root` folder is as simple as invoking `grunt` from the root of your project.
+
 ## Options
 
 The task accept the following options:
