@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var util = require("util");
 var request = require("request");
 
 function removeTrailingSlash(path) {
@@ -45,6 +46,17 @@ Post.prototype.getDefaultOptions = function (path) {
     };
 };
 
+function appendProperty(form, name, value) {
+    if (util.isArray(value)) {
+        value.forEach(function (value) {
+            form.append(name, value);
+        });
+    }
+    else {
+        form.append(name, value);
+    }
+}
+
 Post.prototype.create = function (path, properties, callback) {
 
     // Create the request
@@ -56,7 +68,7 @@ Post.prototype.create = function (path, properties, callback) {
     var form = req.form();
 
     Object.keys(properties).forEach(function (name) {
-        form.append(name, properties[name]);
+        appendProperty(form, name, properties[name]);
     });
 };
 
@@ -76,7 +88,7 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
     form.append("./" + name, fs.createReadStream(file));
 
     Object.keys(properties).forEach(function (key) {
-        form.append("./" + name + "/" + key, properties[key]);
+        appendProperty(form, "./" + name + "/" + key, properties[key]);
     });
 };
 
