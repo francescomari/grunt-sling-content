@@ -2,6 +2,12 @@
 
 <%
     var blog = currentNode.getParent();
+
+    var tags = null;
+
+    if (currentNode.tags && currentNode.tags.length > 0) {
+    	tags = currentNode.tags;
+    }
 %>
 
 <html>
@@ -14,5 +20,9 @@
         <p><%= currentNode.content %></p>
 
         <p><a href="<%= blog.path %>">Return to the blog</a></p>
+
+        <p>
+        	Tags: <%= tags || "none" %>
+        </p>
     </body>
 </html>
