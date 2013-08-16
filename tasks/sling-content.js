@@ -161,8 +161,11 @@ module.exports = function (grunt) {
 
             function toNodeTask(name) {
                 return function (done) {
-                    grunt.log.writeln("Node: " + path.join(root, name + ".json"));
-                    postServlet.create(resource + name, propertiesFor(name), withWarnings(done));
+                    var jsonName = path.join(root, name + ".json");
+
+                    grunt.log.writeln("Node: " + jsonName);
+
+                    postServlet.create(resource + name, propertiesFor(jsonName), withWarnings(done));
                 };
             }
 
