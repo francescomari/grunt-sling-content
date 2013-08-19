@@ -23,12 +23,7 @@ function Post(options) {
 }
 
 Post.prototype.getUrl = function (path) {
-    return {
-        protocol: "http:",
-        host: this.host,
-        port: this.port,
-        pathname: path
-    };
+    return "http://" + this.host + ":" + this.port + path;
 };
 
 Post.prototype.getAuth = function () {
@@ -42,6 +37,7 @@ Post.prototype.getDefaultOptions = function (path) {
     return {
         url: this.getUrl(removeTrailingSlash(path)),
         headers: { "Accept": "application/json" },
+        proxy: process.env.http_proxy,
         auth: this.getAuth()
     };
 };
