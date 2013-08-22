@@ -47,6 +47,7 @@ function appendProperty(form, name, value) {
         value.forEach(function (value) {
             form.append(name, value);
         });
+      form.append(name + '@TypeHint', 'String[]');
     }
     else {
         form.append(name, value);
