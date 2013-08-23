@@ -15,6 +15,24 @@ function removeTrailingSlash(path) {
     return path;
 }
 
+function normalizeProperties(properties) {
+    var arrays = Object.keys(properties).filter(function (name) {
+        return util.isArray(properties[name]);
+    });
+
+    var typeHints = arrays.map(function (name) {
+        return name + "@TypeHint";
+    });
+
+    typeHints.forEach(function (typeHint) {
+        if (!properties[typeHint]) {
+            properties[typeHint] = "String[]";
+        }
+    });
+
+    return properties;
+}
+
 function Post(options) {
     this.host = options.host;
     this.port = options.port;
@@ -63,6 +81,10 @@ Post.prototype.create = function (path, properties, callback) {
 
     var form = req.form();
 
+    // Add request properties
+
+    properties = normalizeProperties(properties);
+
     Object.keys(properties).forEach(function (name) {
         appendProperty(form, name, properties[name]);
     });
@@ -77,11 +99,17 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
 
     // Add form
 
-    var name = path.basename(file);
-
     var form = req.form();
 
+    // Add file content
+
+    var name = path.basename(file);
+
     form.append("./" + name, fs.createReadStream(file));
+
+    // Add request properties
+
+    properties = normalizeProperties(properties);
 
     Object.keys(properties).forEach(function (key) {
         appendProperty(form, "./" + name + "/" + key, properties[key]);
