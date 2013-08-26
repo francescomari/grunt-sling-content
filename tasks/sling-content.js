@@ -173,6 +173,7 @@ module.exports = function (grunt) {
                     postServlet.importContent(resource, name, content, withWarnings(done));
                 };
             }
+
             var nodeTasks = Object.keys(descriptorMap).filter(unusedDescriptor).map(toNodeTask);
 
             // Executes every task in parallel
