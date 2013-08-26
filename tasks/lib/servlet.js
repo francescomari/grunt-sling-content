@@ -116,4 +116,21 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
     });
 };
 
+Post.prototype.importContent = function (path, name, content, callback) {
+    // Create the request
+
+    var req = request.post(this.getDefaultOptions(path), callback);
+
+    // Add form
+
+    var form = req.form();
+
+    // Add content
+    form.append(":name", name);
+    form.append(":operation", "import");
+    form.append(":contentType", "json");
+    form.append(":replace", "true");
+    form.append(":content", content);
+};
+
 exports.Post = Post;
