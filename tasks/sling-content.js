@@ -165,11 +165,12 @@ module.exports = function (grunt) {
 
             function toNodeTask(name) {
                 return function (done) {
-                    var jsonName = path.join(root, name + ".json");
+                    var jsonName = path.join(root, name + ".json"),
+                        content = JSON.stringify(grunt.file.readJSON(jsonName));
 
                     grunt.log.writeln("Node: " + jsonName);
 
-                    postServlet.create(concat(resource, name), propertiesFor(jsonName), withWarnings(done));
+                    postServlet.importContent(resource, name, content, withWarnings(done));
                 };
             }
 
