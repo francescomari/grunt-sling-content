@@ -161,14 +161,14 @@ module.exports = function (grunt) {
 
             function toNodeTask(name) {
                 return function (done) {
-                    var jsonName = path.join(root, name + ".json");
+                    var jsonName = path.join(root, name + ".json"),
+                        content = JSON.stringify(grunt.file.readJSON(jsonName));
 
                     grunt.log.writeln("Node: " + jsonName);
 
-                    postServlet.create(resource + name, propertiesFor(jsonName), withWarnings(done));
+                    postServlet.importContent(resource, name, content, withWarnings(done));
                 };
             }
-
             var nodeTasks = Object.keys(descriptorMap).filter(unusedDescriptor).map(toNodeTask);
 
             // Executes every task in parallel
