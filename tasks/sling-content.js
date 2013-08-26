@@ -5,6 +5,10 @@ var async = require("async");
 
 var servlet = require("./lib/servlet");
 
+function concat(parent, node) {
+    return parent.slice(-1) === "/" ? parent + node : parent + "/" + node;
+}
+
 module.exports = function (grunt) {
     grunt.registerMultiTask("sling-content", function () {
         var options = this.options({
@@ -36,7 +40,7 @@ module.exports = function (grunt) {
             });
 
             var tasks = file.src.map(function (directory) {
-                return createRootDirectoryTask(directory, "/");
+                return createRootDirectoryTask(directory, file.dest);
             });
 
             async.parallel(tasks, done);
@@ -139,7 +143,7 @@ module.exports = function (grunt) {
                         "jcr:primaryType": "sling:Folder"
                     });
 
-                    postServlet.create(resource + directory, properties, withWarnings(done));
+                    postServlet.create(concat(resource, directory), properties, withWarnings(done));
                 };
             }
 
@@ -165,7 +169,7 @@ module.exports = function (grunt) {
 
                     grunt.log.writeln("Node: " + jsonName);
 
-                    postServlet.create(resource + name, propertiesFor(jsonName), withWarnings(done));
+                    postServlet.create(concat(resource, name), propertiesFor(jsonName), withWarnings(done));
                 };
             }
 
@@ -183,7 +187,7 @@ module.exports = function (grunt) {
                 }
 
                 var tasks = directories.map(function (directory) {
-                    return createRootDirectoryTask(path.join(root, directory), resource + directory + "/");
+                    return createRootDirectoryTask(path.join(root, directory), concat(resource, directory));
                 });
 
                 async.parallel(tasks, done);
