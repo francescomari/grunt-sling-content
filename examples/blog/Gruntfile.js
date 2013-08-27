@@ -1,11 +1,24 @@
 module.exports = function (grunt) {
     grunt.initConfig({
-        "sling-content": {
-            root: "root"
+        slingPost: {
+            options: {
+                host: 'localhost',
+                port: '8080',
+                user: 'admin',
+                pass: 'admin'
+            },
+            content: {
+                dest: "/content",
+                src: "root/content"
+            },
+            apps: {
+                dest: "/apps",
+                src: "root/apps"
+            }
         }
     });
 
     grunt.loadTasks("../../tasks");
 
-    grunt.registerTask("default", ["sling-content"]);
+    grunt.registerTask("default", ["slingPost:content", "slingPost:apps"]);
 };
