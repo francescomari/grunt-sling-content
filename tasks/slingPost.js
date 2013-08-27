@@ -10,7 +10,7 @@ function concat(parent, node) {
 }
 
 module.exports = function (grunt) {
-    grunt.registerMultiTask("sling-content", function () {
+    grunt.registerMultiTask("slingPost", function () {
         var options = this.options({
             host: "localhost",
             port: 8080,
