@@ -40,6 +40,11 @@ function getImportType(file) {
     }
 }
 
+function getNodeName(file, type) {
+    var base = path.basename(file);
+    return base.slice(0, base.length - type.length - 1);
+}
+
 module.exports = function (grunt) {
     grunt.registerMultiTask("slingImport", function () {
         var options = this.options({
@@ -75,11 +80,6 @@ module.exports = function (grunt) {
 
                 done(err, response, body);
             };
-        }
-
-        function getNodeName(file, type) {
-            var base = path.basename(file);
-            return base.slice(0, base.length - type.length - 1);
         }
 
         function createImportTask(node, file, options) {
