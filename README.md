@@ -54,14 +54,17 @@ To publish to a running Sling instance the content of the `root` folder, you hav
 ```
 module.exports = function (grunt) {
     grunt.initConfig({
-        "sling-content": {
-            root: "root"
+        slingPush: {
+            root: {
+                src: "root",
+                dest: "/"
+            }
         }
     });
 
     grunt.loadNpmTasks("grunt-sling-content");
 
-    grunt.registerTask("default", ["sling-content"]);
+    grunt.registerTask("default", ["slingPush"]);
 };
 ```
 
