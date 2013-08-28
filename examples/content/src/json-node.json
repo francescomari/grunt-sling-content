@@ -1,0 +1,10 @@
+{
+    "stringProperty": "json",
+    "stringArray": ["one", "two", "three"],
+    "longArray": [1, 2, 3],
+    "sub-node": {
+        "stringProperty": "json, subnode",
+        "stringArray": ["four", "five", "six"],
+        "longArray": [4, 5, 6],
+    }
+}
