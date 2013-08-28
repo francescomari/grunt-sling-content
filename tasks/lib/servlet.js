@@ -116,4 +116,50 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
     });
 };
 
+function fromBoolean(value) {
+    if (value) {
+        return "true";
+    }
+
+    return "false";
+}
+
+Post.prototype.importContent = function (parent, name, file, type, properties, callback) {
+    var self = this;
+
+    // Create the request
+
+    var req = request.post(this.getDefaultOptions(parent), callback);
+
+    // Add form
+
+    var form = req.form();
+
+    form.append(":operation", "import");
+
+    // Add file content
+
+    form.append(":name", name);
+    form.append(":contentFile", fs.createReadStream(file));
+    form.append(":contentType", type);
+
+    // Add optional properties
+
+    if (properties.checkin) {
+        form.append(":checkin", fromBoolean(properties.checkin));
+    }
+
+    if (properties.autoCheckout) {
+        form.append(":autoCheckout", fromBoolean(properties.autoCheckout));
+    }
+
+    if (properties.replace) {
+        form.append(":replace", fromBoolean(properties.replace));
+    }
+
+    if (properties.replaceProperties) {
+        form.append(":replaceProperties", fromBoolean(properties.replaceProperties));
+    }
+};
+
 exports.Post = Post;
