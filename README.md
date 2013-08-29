@@ -1,5 +1,7 @@
 # Grunt Sling Content
 
+[![Build Status](https://travis-ci.org/francescomari/grunt-sling-content.png?branch=master)](https://travis-ci.org/francescomari/grunt-sling-content)
+
 This plugin is a collection of tasks which use the Sling POST servlet to upload or import content into a running Sling instance.
 
 ## Table of contents
