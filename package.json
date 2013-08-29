@@ -1,22 +1,27 @@
 {
-    "name": "grunt-sling-content",
-    "version": "0.0.4",
-    "license": "MIT",
-    "author": "Francesco Mari <mari.francesco@gmail.com>",
-    "description": "Deploy local content to a Sling instance",
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/francescomari/grunt-sling-content.git"
-    },
-    "dependencies": {
-        "grunt": "~0.4.1",
-        "request": "~2.26.0",
-        "async": "~0.2.9"
-    },
-    "devDependencies": {
-        "grunt-contrib-jshint": "~0.6.2"
-    },
-    "keywords": [
-        "gruntplugin"
-    ]
+  "name": "grunt-sling-content",
+  "version": "0.0.4",
+  "license": "MIT",
+  "author": "Francesco Mari <mari.francesco@gmail.com>",
+  "description": "Deploy local content to a Sling instance",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/francescomari/grunt-sling-content.git"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "grunt": "~0.4.1",
+    "request": "~2.26.0",
+    "async": "~0.2.9"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.6.2",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "express": "~3.3.7"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
 }
