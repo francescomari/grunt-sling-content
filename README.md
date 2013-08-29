@@ -2,6 +2,13 @@
 
 This plugin is a collection of tasks which use the Sling POST servlet to upload or import content into a running Sling instance.
 
+## Table of contents
+
+- [Installation](#installation)
+- [Creating content](#creating-content)
+- [Importing content](#importing-content)
+- [Examples](#examples)
+
 ## Installation
 
 To use this plugin, you have to install Grunt first. Please follow the [installation instructions](http://gruntjs.com/getting-started) for Grunt in the official documentation.
