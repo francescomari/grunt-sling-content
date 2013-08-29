@@ -389,11 +389,9 @@ exports.SlingPost = SlingPost;
  * Execute the task.
  */
 SlingPost.prototype.run = function() {
-    var self = this;
-
-    self.printOptions();    
-    self.validate();
-    self.postDirectories(self.task.async());
+    this.printOptions();    
+    this.validate();
+    this.postDirectories(this.task.async());
 };
 
 /**
@@ -469,6 +467,12 @@ SlingPost.prototype.postDirectories = function(done) {
     async.parallel(tasks, done);
 };
 
+/**
+ * Task to import content into Sling using the import operation of the POST
+ * Servlet.
+ * @param {Object} grunt The Grunt main object.
+ * @param {Object} task The task object ("this" inside the task function).
+ */
 function SlingImport(grunt, task) {
     this.grunt = grunt;
     this.task = task;
@@ -476,51 +480,17 @@ function SlingImport(grunt, task) {
 
 exports.SlingImport = SlingImport;
 
-SlingImport.prototype.run = function() {
-    var grunt = this.grunt;
-
-    function printOptions(grunt, options) {
-        grunt.verbose.writeln("Host: " + options.host);
-        grunt.verbose.writeln("Port: " + options.port);
-        grunt.verbose.writeln("User: " + options.user);
-        grunt.verbose.writeln("Checkin: " + options.checkin);
-        grunt.verbose.writeln("Auto-checkout: " + options.checkin);
-        grunt.verbose.writeln("Replace: " + options.checkin);
-        grunt.verbose.writeln("Replace properties: " + options.checkin);
+/**
+ * Return the option object, with default values used if none is provided from
+ * the user.
+ * @return {Object} Option object.
+ */
+SlingImport.prototype.getOptions = function() {
+    if (this.options) {
+        return this.options;
     }
 
-    function validateImportTypes(grunt, files) {
-        files.forEach(function (group) {
-            group.src.forEach(function (file) {
-                if (!getImportType(file)) {
-                    grunt.fatal(util.format("Unable to determine the import type of %s", file));
-                }
-            });
-        });
-    }
-
-    function getImportType(file) {
-        var supported = ["json", "jar", "zip", "jcr.xml", "xml"];
-        
-        var i;
-
-        for (i = 0; i < supported.length; i++) {
-            var extension = "." + supported[i];
-
-            // Is the file using an import type as extension?
-
-            if (file.indexOf(extension, file.length - extension.length) !== -1) {
-                return supported[i];
-            }
-        }
-    }
-
-    function getNodeName(file, type) {
-        var base = path.basename(file);
-        return base.slice(0, base.length - type.length - 1);
-    }
-
-    var options = this.task.options({
+    this.options = this.task.options({
         host: "localhost",
         port: 8080,
         user: "admin",
@@ -531,46 +501,160 @@ SlingImport.prototype.run = function() {
         replaceProperties: false
     });
 
-    printOptions(grunt, options);
+    return this.options;
+};
 
-    validateImportTypes(grunt, this.task.files);
+/**
+ * Print the options to the Grunt logger.
+ */
+SlingImport.prototype.printOptions = function() {
+    var options = this.getOptions();
+    var writeln = this.grunt.verbose.writeln;
+
+    writeln("Host: " + options.host);
+    writeln("Port: " + options.port);
+    writeln("User: " + options.user);
+    writeln("Checkin: " + options.checkin);
+    writeln("Auto-checkout: " + options.checkin);
+    writeln("Replace: " + options.checkin);
+    writeln("Replace properties: " + options.checkin);
+};
+
+/**
+ * Compute the improt type to be performed for a given file.
+ * @param  {String} file File to compute the import type for.
+ * @return {String} The import type to perform for the given file.
+ */
+SlingImport.prototype.getImportType = function(file) {
+    var supported = ["json", "jar", "zip", "jcr.xml", "xml"];
+        
+    var i;
+
+    for (i = 0; i < supported.length; i++) {
+        var extension = "." + supported[i];
+
+        if (file.indexOf(extension, file.length - extension.length) !== -1) {
+            return supported[i];
+        }
+    }
+
+    return null;
+};
+
+/**
+ * Validate the input files provided by the user.
+ */
+SlingImport.prototype.validate = function() {
+    var self = this;
+
+    self.task.files.forEach(function (group) {
+        group.src.forEach(function (file) {
+            if (self.getImportType(file) === null) {
+                self.grunt.fatal(util.format("Unable to determine the import type of %s", file));
+            }
+        });
+    });
+};
+
+/**
+ * Creates an instance of the POST Servlet wrapper, correctly configured. The
+ * instance is cached, multiple invocations of this method will return the
+ * same instance.
+ * @return {Object} An instance of the POST Servlet wrapper.
+ */
+SlingImport.prototype.getServlet = function() {
+    if (this.servlet) {
+        return this.servlet;
+    }
+
+    this.servlet = new servlet.Post(this.getOptions());
+
+    return this.servlet;
+};
+
+/**
+ * Decorate the callback which will be passed to the POST Servlet. The
+ * decorated callback will parse the JSON response of the POST Servlet and
+ * will print a warning if an error occurs.
+ * @param  {Function} callback Original callback.
+ * @return {Function} A function wrapping the original callback and adding
+ *     functionalities.
+ */
+SlingImport.prototype.decorateCallback = function(callback) {
+    var self = this;
+
+    return function (err, response, body) {
+        if (err) {
+            return callback(err);
+        }
+
+        var b = JSON.parse(body);
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+            self.grunt.warn(util.format("Error writing %s: %s.", b.path, b["status.message"]));
+        }
+
+        callback(err, response, body);
+    };
+};
+
+/**
+ * Compute the node name of a file. To compute the node name, the import type
+ * extension is stripped out of the base name of the file.
+ * @param  {String} file The file to compute the node name for.
+ * @param  {String} type The import type.
+ * @return {String} The node name of the file.
+ */
+SlingImport.prototype.getNodeName = function(file, type) {
+    var base = path.basename(file);
+    return base.slice(0, base.length - type.length - 1);
+};
+
+/**
+ * Create the task functions to import the content files into Sling.
+ * @return {Array} Array of task functions.
+ */
+SlingImport.prototype.getImportTasks = function() {
+    var self = this;
 
     var tasks = [];
 
-    var postServlet = new servlet.Post(options);
-
-    function withWarnings(done) {
-        return function (err, response, body) {
-            if (err) {
-                return done(err);
-            }
-
-            var b = JSON.parse(body);
-
-            if (response.statusCode < 200 || response.statusCode >= 300) {
-                grunt.warn(util.format("Error writing %s: %s.", b.path, b["status.message"]));
-            }
-
-            done(err, response, body);
-        };
-    }
-
-    function createImportTask(node, file, options) {
+    function createImportTask(node, file) {
         return function (done) {
-            var type = getImportType(file);
-            var name = getNodeName(file, type);
+            var type = self.getImportType(file);
+            var name = self.getNodeName(file, type);
+            var options = self.getOptions();
+            var callback = self.decorateCallback(done);
 
-            grunt.log.writeln(util.format("Importing %s with type '%s'", file, type));
+            self.grunt.log.writeln(util.format("Importing %s with type '%s'", file, type));
 
-            postServlet.importContent(node, name, file, type, options, withWarnings(done));
+            self.getServlet().importContent(node, name, file, type, options, callback);
         };
     }
 
-    this.task.files.forEach(function (group) {
+    self.task.files.forEach(function (group) {
         group.src.forEach(function (file) {
-            tasks.push(createImportTask(group.orig.dest, file, options));
+            tasks.push(createImportTask(group.orig.dest, file));
         });
     });
 
-    async.parallel(tasks, this.task.async());
+    return tasks;
+};
+
+/**
+ * Import each content file passed to the task into Sling.
+ * @param  {Function} done Callback to be called when the import of each file
+ *     is finished.
+ */
+SlingImport.prototype.importFiles = function(done) {
+    async.parallel(this.getImportTasks(), done);
+};
+
+/**
+ * Executes the import task.
+ */
+SlingImport.prototype.run = function() {
+    this.printOptions();
+    this.validate();
+    this.importFiles(this.task.async());
 };
