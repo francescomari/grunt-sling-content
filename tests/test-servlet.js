@@ -1,11 +1,13 @@
 var util = require("util");
 var http = require("http");
+var path = require("path");
 var express = require("express");
 
 var servlet = require("../tasks/lib/servlet");
 
 function MockServer(test) {
     this.test = test;
+    this.headers = {};
 }
 
 MockServer.prototype.usePort = function (port) {
@@ -30,6 +32,10 @@ MockServer.prototype.expectPath = function(path) {
 
 MockServer.prototype.expectProperties = function (properties) {
     this.properties = properties;
+};
+
+MockServer.prototype.expectFile = function (fileName) {
+    this.fileName = fileName;
 };
 
 MockServer.prototype.listen = function(callback) {
@@ -64,6 +70,10 @@ MockServer.prototype.listen = function(callback) {
     app.all("*", function (req, res) {
         if (self.path) {
             self.test.equal(req.path, self.path, "Wrong request path");
+        }
+
+        if (self.fileName) {
+            self.test.ok(req.files[self.fileName] !== undefined, "Expected file not found");
         }
 
         if (self.properties) {
@@ -130,6 +140,38 @@ module.exports = {
         server.listen(function (done) {
             var post = new servlet.Post(self.options);
             post.create("/content/node", properties, done);
+        });
+    },
+
+    createFile: function (test) {
+        var self = this;
+
+        var server = new MockServer(test);
+
+        server.usePort(self.port);
+
+        server.expectUser("user");
+        server.expectPass("pass");
+        server.expectMethod("post");
+        server.expectPath("/content/node");
+        server.expectFile("./test.txt");
+
+        server.expectProperties({
+            "./test.txt/one": 1,
+            "./test.txt/two": 2
+        });
+
+        server.listen(function (done) {
+            var post = new servlet.Post(self.options);
+
+            var properties = {
+                one: 1,
+                two: 2
+            };
+
+            var file = path.join(__dirname, "files/test.txt");
+
+            post.createFile("/content/node", file, properties, done);
         });
     }
 };
