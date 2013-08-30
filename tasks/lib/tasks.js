@@ -28,13 +28,13 @@ function concatResource(parent, node) {
  * @param {String} root Path of the directory.
  * @param {String} resource Path of the resource whom the directory wil be mapped to.
  */
-function DirectoryPoster(task, root, resource) {
+function DirectoryHandler(task, root, resource) {
     this.task = task;
     this.directory = root;
     this.resource = resource;
 }
 
-exports.DirectoryPoster = DirectoryPoster;
+exports.DirectoryHandler = DirectoryHandler;
 
 /**
  * Creates an instance of the POST Servlet wrapper, correctly configured. The
@@ -42,7 +42,7 @@ exports.DirectoryPoster = DirectoryPoster;
  * same instance.
  * @return {Object} An instance of the POST Servlet wrapper.
  */
-DirectoryPoster.prototype.getServlet = function () {
+DirectoryHandler.prototype.getServlet = function () {
     var self = this;
 
     if (self.servlet) {
@@ -60,7 +60,7 @@ DirectoryPoster.prototype.getServlet = function () {
  * will return the same array.
  * @return {Array} Array of names for children of the current directory.
  */
-DirectoryPoster.prototype.getChildren = function() {
+DirectoryHandler.prototype.getChildren = function() {
     var self = this;
 
     if (self.children) {
@@ -78,7 +78,7 @@ DirectoryPoster.prototype.getChildren = function() {
  * will return the same array.
  * @return {Array} Array of names for children files of the current directory.
  */
-DirectoryPoster.prototype.getFiles = function() {
+DirectoryHandler.prototype.getFiles = function() {
     var self = this;
 
     if (self.files) {
@@ -103,7 +103,7 @@ DirectoryPoster.prototype.getFiles = function() {
  * @return {Array} Array of names for children directories of the current
  *     directory.
  */
-DirectoryPoster.prototype.getDirectories = function() {
+DirectoryHandler.prototype.getDirectories = function() {
     var self = this;
 
     if (self.directories) {
@@ -128,7 +128,7 @@ DirectoryPoster.prototype.getDirectories = function() {
  * @return {Array} Array of names for children descriptor files of the current
  *     directory.
  */
-DirectoryPoster.prototype.getDescriptors = function() {
+DirectoryHandler.prototype.getDescriptors = function() {
     var self = this;
 
     if (self.descriptors) {
@@ -150,7 +150,7 @@ DirectoryPoster.prototype.getDescriptors = function() {
  * content of the corresponding descriptor file, already parsed.
  * @return {Object} Map of descriptor names to descriptor contents.
  */
-DirectoryPoster.prototype.getDescriptorMap = function() {
+DirectoryHandler.prototype.getDescriptorMap = function() {
     var self = this;
 
     if (self.descriptorMap) {
@@ -184,7 +184,7 @@ DirectoryPoster.prototype.getDescriptorMap = function() {
  * @return {Object} Descriptor properties for the file with the given name,
  *     optionally merged with initial properties.
  */
-DirectoryPoster.prototype.propertiesFor = function(name, initial) {
+DirectoryHandler.prototype.propertiesFor = function(name, initial) {
     var self = this;
 
     var base = path.basename(name, path.extname(name));
@@ -210,7 +210,7 @@ DirectoryPoster.prototype.propertiesFor = function(name, initial) {
  * @return {Function} A function wrapping the original callback and adding
  *     functionalities.
  */
-DirectoryPoster.prototype.decorateCallback = function(callback) {
+DirectoryHandler.prototype.decorateCallback = function(callback) {
     return function (err, response, body) {
         if (err) {
             return callback(err);
@@ -231,7 +231,7 @@ DirectoryPoster.prototype.decorateCallback = function(callback) {
  * directory.
  * @return {Array} Array of task functions.
  */
-DirectoryPoster.prototype.getFileTasks = function() {
+DirectoryHandler.prototype.getFileTasks = function() {
     var self = this;
 
     function toFileTasks(file) {
@@ -255,7 +255,7 @@ DirectoryPoster.prototype.getFileTasks = function() {
  * directory.
  * @return {Array} Array of task functions.
  */
-DirectoryPoster.prototype.getDirectoryTasks = function() {
+DirectoryHandler.prototype.getDirectoryTasks = function() {
     var self = this;
 
     function toDirectoryTask(directory) {
@@ -281,7 +281,7 @@ DirectoryPoster.prototype.getDirectoryTasks = function() {
  * files or directories in the current directory.
  * @return {Array} Array of descriptor names.
  */
-DirectoryPoster.prototype.getUnusedDescriptorNames = function() {
+DirectoryHandler.prototype.getUnusedDescriptorNames = function() {
     var self = this;
 
     function unusedDescriptor(name) {
@@ -304,7 +304,7 @@ DirectoryPoster.prototype.getUnusedDescriptorNames = function() {
  * directory.
  * @return {Array} Array of task functions.
  */
-DirectoryPoster.prototype.getNodeTasks = function() {
+DirectoryHandler.prototype.getNodeTasks = function() {
     var self = this;
 
     function toNodeTask(name) {
@@ -329,7 +329,7 @@ DirectoryPoster.prototype.getNodeTasks = function() {
  * contained in the current directory.
  * @return {Array} Array of task functions.
  */
-DirectoryPoster.prototype.getRecursionTasks = function() {
+DirectoryHandler.prototype.getRecursionTasks = function() {
     var self = this;
 
     function toRecursionTask(directory) {
@@ -337,7 +337,7 @@ DirectoryPoster.prototype.getRecursionTasks = function() {
             var newRoot = path.join(self.directory, directory);
             var newResource = concatResource(self.resource, directory);
             
-            var poster = new DirectoryPoster(self.task, newRoot, newResource);
+            var poster = new DirectoryHandler(self.task, newRoot, newResource);
             
             poster.post(done);
         };
@@ -353,7 +353,7 @@ DirectoryPoster.prototype.getRecursionTasks = function() {
  * @param  {Function} done Callback which will be invoked when the submission
  *     of data is finished.
  */
-DirectoryPoster.prototype.post = function(done) {
+DirectoryHandler.prototype.post = function(done) {
     var self = this;
 
     var fileTasks = self.getFileTasks();
@@ -459,7 +459,7 @@ SlingPost.prototype.postDirectories = function(done) {
     self.task.files.forEach(function (group) {
         group.src.forEach(function (directory) {
             tasks.push(function (done) {
-                new DirectoryPoster(self, directory, group.orig.dest).post(done);
+                new DirectoryHandler(self, directory, group.orig.dest).post(done);
             });
         });
     });
