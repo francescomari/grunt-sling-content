@@ -5,6 +5,11 @@ var express = require("express");
 
 var servlet = require("../tasks/lib/servlet");
 
+var HTTP_PORT = 8080;
+var HTTP_HOST = "localhost";
+var HTTP_USER = "user";
+var HTTP_PASS = "pass";
+
 function MockServer(test) {
     this.test = test;
     this.headers = {};
@@ -107,10 +112,10 @@ module.exports = {
         this.port = 8080;
 
         this.options = {
-            host: "localhost",
-            port: 8080,
-            user: "user",
-            pass: "pass"
+            host: HTTP_HOST,
+            port: HTTP_PORT,
+            user: HTTP_USER,
+            pass: HTTP_PASS
         };
 
         done();
@@ -123,8 +128,8 @@ module.exports = {
 
         server.usePort(self.port);
 
-        server.expectUser("user");
-        server.expectPass("pass");
+        server.expectUser(HTTP_USER);
+        server.expectPass(HTTP_PASS);
         server.expectMethod("post");
         server.expectPath("/content/node");
 
@@ -150,8 +155,8 @@ module.exports = {
 
         server.usePort(self.port);
 
-        server.expectUser("user");
-        server.expectPass("pass");
+        server.expectUser(HTTP_USER);
+        server.expectPass(HTTP_PASS);
         server.expectMethod("post");
         server.expectPath("/content/node");
         server.expectFile("./test.txt");
@@ -172,6 +177,44 @@ module.exports = {
             var file = path.join(__dirname, "files/test.txt");
 
             post.createFile("/content/node", file, properties, done);
+        });
+    },
+
+    importContent: function (test) {
+        var self = this;
+
+        var server = new MockServer(test);
+
+        server.usePort(self.port);
+
+        server.expectUser(HTTP_USER);
+        server.expectPass(HTTP_PASS);
+        server.expectMethod("post");
+        server.expectPath("/content");
+        server.expectFile(":contentFile");
+
+        server.expectProperties({
+            ":name": "node",
+            ":contentType": "json",
+            ":checkin": "true",
+            ":autoCheckout": "true",
+            ":replace": "true",
+            ":replaceProperties": "true"
+        });
+
+        server.listen(function (done) {
+            var post = new servlet.Post(self.options);
+
+            var properties = {
+                checkin: true,
+                autoCheckout: true,
+                replace: true,
+                replaceProperties: true
+            };
+
+            var file = path.join(__dirname, "files/content.json");            
+
+            post.importContent("/content", "node", file, "json", properties, done);
         });
     }
 };
