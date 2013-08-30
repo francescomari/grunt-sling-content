@@ -63,6 +63,32 @@ module.exports = {
         mock.server(HTTP_PORT, send, verify);
     },
 
+    createWithNoFields: function (test) {
+        var self = this;
+
+        var send = function (done) {
+            var post = new servlet.Post(self.options);
+
+            post.create("/content/node", {}, done);
+        };
+
+        var verify = function (requests) {
+            var exists;
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content/node")
+                .notEmpty();
+
+            test.ok(exists);
+
+            test.done();
+        };
+
+        mock.server(HTTP_PORT, send, verify);
+    },
+
     createFile: function (test) {
         var self = this;
 
@@ -73,7 +99,7 @@ module.exports = {
                 property: "value"
             };
 
-            var file = path.join(__dirname, "files/test.txt");
+            var file = path.join(__dirname, "files", "test");
 
             post.createFile("/content/node", file, properties, done);
         };
@@ -85,8 +111,8 @@ module.exports = {
                 .withUser(HTTP_USER)
                 .withMethod("post")
                 .withPath("/content/node")
-                .withFile("./test.txt")
-                .withField("./test.txt/property", "value")
+                .withFile("./test")
+                .withField("./test/property", "value")
                 .notEmpty();
 
             test.ok(exists);
@@ -110,7 +136,7 @@ module.exports = {
                 replaceProperties: true
             };
 
-            var file = path.join(__dirname, "files/content.json");            
+            var file = path.join(__dirname, "files", "test");            
 
             post.importContent("/content", "node", file, "json", properties, done);
         };

@@ -131,15 +131,21 @@ Post.prototype.create = function (path, properties, callback) {
 
     var req = request.post(this.getDefaultOptions(path), callback);
 
-    // Add form
-
-    var form = req.form();
-
     // Add request properties
 
     properties = normalizeProperties(properties);
 
-    Object.keys(properties).forEach(function (name) {
+    // Add form only if fields must be submitted
+
+    var names = Object.keys(properties);
+
+    if (names.length === 0) {
+        return;
+    }
+
+    var form = req.form();
+
+    names.forEach(function (name) {
         appendProperty(form, name, properties[name]);
     });
 };
