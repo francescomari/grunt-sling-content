@@ -73,6 +73,16 @@ DirectoryHandler.prototype.getChildren = function() {
 };
 
 /**
+ * Check if a path points to an existing file.
+ * @param  {String}  directory Path of the directory containing the file
+ * @param  {String}  file      Name of the file.
+ * @return {Boolean}           True if the path points to an existing file.
+ */
+DirectoryHandler.prototype.isFile = function(directory, file) {
+    return self.task.grunt.file.isFile(directory, file);
+};
+
+/**
  * Reads the children files of the current directory. Returns an array of file
  * names. The returned array is cached, multiple invocations of this method
  * will return the same array.
@@ -85,15 +95,24 @@ DirectoryHandler.prototype.getFiles = function() {
         return self.files;
     }
 
-    var isFile = self.task.grunt.file.isFile;
-
     function filesOnly(child) {
-        return isFile(self.directory, child) && path.extname(child) !== ".json";
+        return self.isFile(self.directory, child) && path.extname(child) !== ".json";
     }
 
     self.files = self.getChildren().filter(filesOnly);
 
     return self.files;
+};
+
+/**
+ * Check if a path points to an existing directory.
+ * @param  {String}  directory Path of the directory containing the directory.
+ * @param  {String}  name      Name of the directory.
+ * @return {Boolean}           True if the path points to an existing
+ *     directory.
+ */
+DirectoryHandler.prototype.isDir = function(directory, name) {
+    return self.task.grunt.file.isDir(directory, name);
 };
 
 /**
@@ -110,10 +129,8 @@ DirectoryHandler.prototype.getDirectories = function() {
         return self.directories;
     }
 
-    var isDir = self.task.grunt.file.isDir;
-
     function directoriesOnly(child) {
-        return isDir(self.directory, child);
+        return self.isDir(self.directory, child);
     }
 
     self.directories = self.getChildren().filter(directoriesOnly);
@@ -135,13 +152,20 @@ DirectoryHandler.prototype.getDescriptors = function() {
         return self.descriptors;
     }
 
-    var isFile = self.task.grunt.file.isFile;
-
     self.descriptors = self.getChildren().filter(function (child) {
-        return isFile(self.directory, child) && path.extname(child) === ".json";
+        return self.isFile(self.directory, child) && path.extname(child) === ".json";
     });
 
     return self.descriptors;
+};
+
+/**
+ * Wrapper around the grunt.file.readJSON() method.
+ * @param  {String} path Path of the JSON file.
+ * @return {Object}      Parsed JSON object.
+ */
+DirectoryHandler.prototype.readJSON = function(directory, name) {
+    return self.task.grunt.file.readJSON(path.join(directory, name));
 };
 
 /**
@@ -157,12 +181,10 @@ DirectoryHandler.prototype.getDescriptorMap = function() {
         return self.descriptorMap;
     }
 
-    var readJSON = self.task.grunt.file.readJSON;
-
     function toDescriptorMap(map, descriptor) {
         var base = path.basename(descriptor, ".json");
 
-        var json = readJSON(path.join(self.directory, descriptor));
+        var json = self.readJSON(self.directory, descriptor);
 
         map[base] = json;
 
