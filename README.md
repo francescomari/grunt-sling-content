@@ -43,7 +43,7 @@ The task can only push new changes to nodes and properties to the Sling instance
 
 To publish to a running Sling instance the content of the `root` folder, you have to update the contents of `Gruntfile.js` to reference and configure the `slingPost` task.
 
-```
+```javascript
 module.exports = function (grunt) {
     grunt.initConfig({
         slingPost: {
@@ -81,7 +81,7 @@ The content to import can be stored in different formats. At the moment the task
 
 Let's say you have some content in the `src/content-tree.json` file. You want to import this content under the `/content/data` node in your Sling instance. To perform the import, you have to update the contents of `Gruntfile.js` to reference and configure the `slingImport` task.
 
-```
+```javascript
 module.exports = function (grunt) {
     grunt.initConfig({
         slingImport: {
