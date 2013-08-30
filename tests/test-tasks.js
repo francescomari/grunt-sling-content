@@ -3,8 +3,6 @@ var path = require("path");
 
 var tasks = require("../tasks/lib/tasks");
 
-var MockServer = require("./mock-server");
-
 var HTTP_PORT = 8080;
 var HTTP_HOST = "localhost";
 var HTTP_USER = "user";

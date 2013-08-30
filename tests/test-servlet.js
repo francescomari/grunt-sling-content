@@ -3,7 +3,7 @@ var path = require("path");
 
 var servlet = require("../tasks/lib/servlet");
 
-var MockServer = require("./mock-server");
+var mock = require("./mock");
 
 var HTTP_PORT = 8080;
 var HTTP_HOST = "localhost";
@@ -27,85 +27,80 @@ module.exports = {
     create: function (test) {
         var self = this;
 
-        var server = new MockServer(test);
+        var send = function (done) {
+            var post = new servlet.Post(self.options);
 
-        server.usePort(self.port);
+            var properties = {
+                string: "s",
+                integer: 1,
+                stringArray: ["t", "u"],
+                integerArray: [2, 3],
+                bool: true
+            };
 
-        server.expectUser(HTTP_USER);
-        server.expectPass(HTTP_PASS);
-        server.expectMethod("post");
-        server.expectPath("/content/node");
-
-        var properties = {
-            s: "s",
-            i: 1,
-            as: ["t", "u"],
-            ai: [2, 3]
+            post.create("/content/node", properties, done);
         };
 
-        server.expectProperties(properties);
+        var verify = function (requests) {
+            var exists;
 
-        server.listen(function (done) {
-            var post = new servlet.Post(self.options);
-            post.create("/content/node", properties, done);
-        });
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content/node")
+                .withField("string", "s")
+                .withField("integer", "1")
+                .withField("stringArray", ["t", "u"])
+                .withField("integerArray", ["2", "3"])
+                .withField("bool", "true")
+                .notEmpty();
+
+            test.ok(exists);
+
+            test.done();
+        };
+
+        mock.server(HTTP_PORT, send, verify);
     },
 
     createFile: function (test) {
         var self = this;
 
-        var server = new MockServer(test);
-
-        server.usePort(self.port);
-
-        server.expectUser(HTTP_USER);
-        server.expectPass(HTTP_PASS);
-        server.expectMethod("post");
-        server.expectPath("/content/node");
-        server.expectFile("./test.txt");
-
-        server.expectProperties({
-            "./test.txt/one": 1,
-            "./test.txt/two": 2
-        });
-
-        server.listen(function (done) {
+        var send = function (done) {
             var post = new servlet.Post(self.options);
 
             var properties = {
-                one: 1,
-                two: 2
+                property: "value"
             };
 
             var file = path.join(__dirname, "files/test.txt");
 
             post.createFile("/content/node", file, properties, done);
-        });
+        };
+
+        var verify = function (requests) {
+            var exists;
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content/node")
+                .withFile("./test.txt")
+                .withField("./test.txt/property", "value")
+                .notEmpty();
+
+            test.ok(exists);
+
+            test.done();
+        };
+
+        mock.server(HTTP_PORT, send, verify);
     },
 
     importContent: function (test) {
         var self = this;
 
-        var server = new MockServer(test);
-
-        server.usePort(self.port);
-
-        server.expectUser(HTTP_USER);
-        server.expectPass(HTTP_PASS);
-        server.expectMethod("post");
-        server.expectPath("/content");
-        server.expectFile(":contentFile");
-
-        server.expectProperties({
-            ":name": "node",
-            ":contentType": "json",
-            ":checkin": "true",
-            ":autoCheckout": "true",
-            ":replace": "true",
-            ":replaceProperties": "true"
-        });
-
-        server.listen(function (done) {
+        var send = function (done) {
             var post = new servlet.Post(self.options);
 
             var properties = {
@@ -118,6 +113,29 @@ module.exports = {
             var file = path.join(__dirname, "files/content.json");            
 
             post.importContent("/content", "node", file, "json", properties, done);
-        });
+        };
+
+        var verify = function (requests) {
+            var exists;
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content")
+                .withFile(":contentFile")
+                .withField(":name", "node")
+                .withField(":contentType", "json")
+                .withField(":checkin", "true")
+                .withField(":autoCheckout", "true")
+                .withField(":replace", "true")
+                .withField(":replaceProperties", "true")
+                .notEmpty();
+
+            test.ok(exists);
+
+            test.done();
+        };
+
+        mock.server(HTTP_PORT, send, verify);
     }
 };
