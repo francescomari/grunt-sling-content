@@ -1,7 +1,10 @@
 var fs = require("fs");
 var path = require("path");
+var util = require("util");
 
 var tasks = require("../tasks/lib/tasks");
+
+var mock = require("./mock");
 
 var HTTP_PORT = 8080;
 var HTTP_HOST = "localhost";
@@ -205,5 +208,115 @@ exports.directoryHandler = {
         test.equal(names.toString(), expected.toString());
 
         test.done();
+    },
+
+    post: function (test) {
+        var self = this;
+
+        // Mock the task
+        
+        var task = {
+            getOptions: function () {
+                return HTTP_OPTS;
+            },
+            grunt: {
+                log: {
+                    writeln: function () {}
+                }
+            }
+        };
+
+        // Select test dir
+
+        var dir = path.join(__dirname, "files", "content");
+
+        // Map to test dir to content
+
+        var resource = "/content";
+        
+        // Mock the handler
+        
+        function MockDirectoryHandler(task, dir, resource) {
+            tasks.DirectoryHandler.call(this, task, dir, resource);
+        }
+
+        util.inherits(MockDirectoryHandler, tasks.DirectoryHandler);
+
+        MockDirectoryHandler.prototype.isFile = function (dir, name) {
+            return fs.statSync(path.join(dir, name)).isFile();
+        };
+
+        MockDirectoryHandler.prototype.isDir = function (dir, name) {
+            return fs.statSync(path.join(dir, name)).isDirectory();
+        };
+
+        MockDirectoryHandler.prototype.readJSON = function (dir, name) {
+            return JSON.parse(fs.readFileSync(path.join(dir, name)));
+        };
+
+        MockDirectoryHandler.prototype.decorateCallback = function (callback) {
+            return callback;
+        };
+
+        MockDirectoryHandler.prototype.createHandler = function (directory, resource) {
+            return new MockDirectoryHandler(this.task, directory, resource);
+        };
+
+        var handler = new MockDirectoryHandler(task, dir, resource);
+
+        // Callback to post the directory
+
+        var send = function (done) {
+            handler.post(done);
+        };
+
+        // Callback to verify the requests
+
+        var verify = function (requests) {
+            var exists;
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content/dir")
+                .withField("jcr:primaryType", "sling:Folder")
+                .notEmpty();
+
+            test.ok(exists);
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content/node")
+                .withField("name", "node")
+                .notEmpty();
+
+            test.ok(exists);
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content")
+                .withFile("./outer.txt")
+                .withField("./outer.txt/name", "outer")
+                .notEmpty();
+
+            test.ok(exists);
+
+            exists = requests
+                .withUser(HTTP_USER)
+                .withMethod("post")
+                .withPath("/content/dir")
+                .withFile("./inner.txt")
+                .notEmpty();
+
+            test.ok(exists);
+
+            test.done();
+        };
+
+        // Start the test
+
+        mock.server(HTTP_PORT, send, verify);
     }
 };

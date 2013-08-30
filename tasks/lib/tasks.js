@@ -79,7 +79,8 @@ DirectoryHandler.prototype.getChildren = function() {
  * @return {Boolean}           True if the path points to an existing file.
  */
 DirectoryHandler.prototype.isFile = function(directory, file) {
-    return self.task.grunt.file.isFile(directory, file);
+    console.log("is file", directory, file);
+    return this.task.grunt.file.isFile(directory, file);
 };
 
 /**
@@ -112,7 +113,7 @@ DirectoryHandler.prototype.getFiles = function() {
  *     directory.
  */
 DirectoryHandler.prototype.isDir = function(directory, name) {
-    return self.task.grunt.file.isDir(directory, name);
+    return this.task.grunt.file.isDir(directory, name);
 };
 
 /**
@@ -347,6 +348,16 @@ DirectoryHandler.prototype.getNodeTasks = function() {
 };
 
 /**
+ * Create a new handler to recurse into a subdirectory.
+ * @param  {String} directory Path to the directory to recurse into.
+ * @param  {String} resource  Resource to map the directory to.
+ * @return {Object}           New DirectoryHandler instance.
+ */
+DirectoryHandler.prototype.createHandler = function(directory, resource) {
+    return new DirectoryHandler(this.task, directory, resource);
+};
+
+/**
  * Creates task functions which will be used to recurse in the directories
  * contained in the current directory.
  * @return {Array} Array of task functions.
@@ -358,10 +369,10 @@ DirectoryHandler.prototype.getRecursionTasks = function() {
         return function (done) {
             var newRoot = path.join(self.directory, directory);
             var newResource = concatResource(self.resource, directory);
-            
-            var poster = new DirectoryHandler(self.task, newRoot, newResource);
-            
-            poster.post(done);
+
+            var handler = self.createHandler(newRoot, newResource);
+
+            handler.post(done);
         };
     }
 
