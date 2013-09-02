@@ -233,6 +233,8 @@ DirectoryHandler.prototype.propertiesFor = function(name, initial) {
  *     functionalities.
  */
 DirectoryHandler.prototype.decorateCallback = function(callback) {
+    var self = this;
+
     return function (err, response, body) {
         if (err) {
             return callback(err);
