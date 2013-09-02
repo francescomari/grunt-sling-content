@@ -79,7 +79,6 @@ DirectoryHandler.prototype.getChildren = function() {
  * @return {Boolean}           True if the path points to an existing file.
  */
 DirectoryHandler.prototype.isFile = function(directory, file) {
-    console.log("is file", directory, file);
     return this.task.grunt.file.isFile(directory, file);
 };
 
