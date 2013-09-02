@@ -239,10 +239,35 @@ DirectoryHandler.prototype.decorateCallback = function(callback) {
             return callback(err);
         }
 
-        var b = JSON.parse(body);
-
         if (response.statusCode < 200 || response.statusCode >= 300) {
-            self.task.grunt.warn(util.format("Error writing %s: %s: %s.", b.path, b.error.class, b.error.message));
+            var parsed;
+
+            try {
+                parsed = JSON.parse(body);
+            }
+            catch (e) {
+                parsed = null;
+            }
+
+            var path = "<unknown path>";
+
+            if (parsed && parsed.path) {
+                path = parsed.path;
+            }
+
+            var errorClass = "<unknown class>";
+
+            if (parsed && parsed.error && parsed.error.class) {
+                errorClass = parsed.error.class;
+            }
+
+            var errorMessage = "<unknown message>";
+
+            if (parsed && parsed.error && parsed.error.message) {
+                errorMessage = parsed.error.message;
+            }
+
+            self.task.grunt.warn(util.format("Error writing %s: %s: %s.", path, errorClass, errorMessage));
         }
 
         callback(err, response, body);
@@ -621,10 +646,29 @@ SlingImport.prototype.decorateCallback = function(callback) {
             return callback(err);
         }
 
-        var b = JSON.parse(body);
-
         if (response.statusCode < 200 || response.statusCode >= 300) {
-            self.grunt.warn(util.format("Error writing %s: %s.", b.path, b["status.message"]));
+            var parsed;
+
+            try {
+                parsed = JSON.parse(body);
+            }
+            catch (e) {
+                parsed = null;
+            }
+
+            var path = "<unknown path>";
+
+            if (parsed && parsed.path) {
+                path = parsed.path;
+            }
+
+            var message = "<unknown message>";
+
+            if (parsed && parsed["status.message"]) {
+                message = parsed["status.message"];
+            }
+
+            self.grunt.warn(util.format("Error writing %s: %s.", path, message));
         }
 
         callback(err, response, body);
