@@ -64,7 +64,7 @@ Invoking the task to push the content in the `root` folder is as simple as invok
 
 If the folder passed to the task contains files you don't want to post to Sling, you can exclude them by specifying exact file names or file patterns, as shown below.
 
-```
+```javascript
 module.exports = function (grunt) {
     grunt.initConfig({
         slingPost: {
