@@ -1,6 +1,6 @@
 {
   "name": "grunt-sling-content",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "license": "MIT",
   "author": "Francesco Mari <mari.francesco@gmail.com>",
   "description": "Deploy local content to a Sling instance",
