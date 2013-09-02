@@ -70,6 +70,10 @@ module.exports = function (grunt) {
         slingPost: {
             options: {
                 exclude: [".svn", "*.txt"]
+            },
+            root: {
+                src: "root",
+                dest: "/"
             }
         }
     });
