@@ -73,6 +73,16 @@ DirectoryHandler.prototype.getChildren = function() {
 };
 
 /**
+ * Check if a path is excluded according to the configuration.
+ * @param  {String}  path Path to check for exclusion.
+ * @return {Boolean}      true if the path must be excluded.
+ */
+DirectoryHandler.prototype.isExcluded = function (path) {
+    var options = this.task.getOptions();
+    return this.task.grunt.file.isMatch(options.exclude, path);
+};
+
+/**
  * Check if a path points to an existing file.
  * @param  {String}  directory Path of the directory containing the file
  * @param  {String}  file      Name of the file.
@@ -99,7 +109,11 @@ DirectoryHandler.prototype.getFiles = function() {
         return self.isFile(self.directory, child) && path.extname(child) !== ".json";
     }
 
-    self.files = self.getChildren().filter(filesOnly);
+    function notExcluded(child) {
+        return !self.isExcluded(child);
+    }
+
+    self.files = self.getChildren().filter(filesOnly).filter(notExcluded);
 
     return self.files;
 };
@@ -133,7 +147,11 @@ DirectoryHandler.prototype.getDirectories = function() {
         return self.isDir(self.directory, child);
     }
 
-    self.directories = self.getChildren().filter(directoriesOnly);
+    function notExcluded(child) {
+        return !self.isExcluded(child);
+    }
+
+    self.directories = self.getChildren().filter(directoriesOnly).filter(notExcluded);
 
     return self.directories;
 };
@@ -467,7 +485,8 @@ SlingPost.prototype.getOptions = function() {
         host: "localhost",
         port: 8080,
         user: "admin",
-        pass: "admin"
+        pass: "admin",
+        exclude: []
     });
 
     return this.options;

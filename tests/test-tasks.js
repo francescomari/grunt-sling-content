@@ -46,12 +46,59 @@ exports.directoryHandler = {
             return ["yes.txt", "yes.json", "no"];
         };
 
+        handler.isExcluded = function () {
+            return false;
+        };
+
         handler.isFile = function (directory, name) {
             if (name === "yes.txt") {
                 return true;
             }
 
             if (name === "yes.json") {
+                return true;
+            }
+
+            return false;
+        };
+
+        var files = handler.getFiles();
+        var expected = ["yes.txt"];
+
+        test.equal(files.toString(), expected.toString(), "Files not expected");
+
+        var another = handler.getFiles();
+
+        test.equal(another, files, "Files are not cached");
+
+        test.done();
+    },
+
+    getFilesWithExclusions: function (test) {
+        var handler = new tasks.DirectoryHandler();
+
+        handler.getChildren = function () {
+            return ["yes.txt", "yes.json", "no", "excluded.txt"];
+        };
+
+        handler.isExcluded = function (name) {
+            if (name === "excluded.txt") {
+                return true;
+            }
+
+            return false;
+        };
+
+        handler.isFile = function (directory, name) {
+            if (name === "yes.txt") {
+                return true;
+            }
+
+            if (name === "yes.json") {
+                return true;
+            }
+
+            if (name === "excluded.txt") {
                 return true;
             }
 
@@ -77,8 +124,51 @@ exports.directoryHandler = {
             return ["yes", "no.txt"];
         };
 
+        handler.isExcluded = function () {
+            return false;
+        };
+
         handler.isDir = function (directory, name) {
             if (name === "yes") {
+                return true;
+            }
+
+            return false;
+        };
+
+        var directories = handler.getDirectories();
+        var expected = ["yes"];
+
+        test.equal(directories.toString(), expected.toString(), "Directories not expected");
+
+        var another = handler.getDirectories();
+
+        test.equal(another, directories, "Directories are not cached");
+
+        test.done();
+    },
+
+    getDirectoriesWithExclusions: function (test) {
+        var handler = new tasks.DirectoryHandler();
+
+        handler.getChildren = function () {
+            return ["yes", "no.txt", "excluded"];
+        };
+
+        handler.isExcluded = function (name) {
+            if (name === "excluded") {
+                return true;
+            }
+
+            return false;
+        };
+
+        handler.isDir = function (directory, name) {
+            if (name === "yes") {
+                return true;
+            }
+
+            if (name === "excluded") {
                 return true;
             }
 
@@ -248,6 +338,10 @@ exports.directoryHandler = {
 
         MockDirectoryHandler.prototype.isDir = function (dir, name) {
             return fs.statSync(path.join(dir, name)).isDirectory();
+        };
+
+        MockDirectoryHandler.prototype.isExcluded = function() {
+            return false;
         };
 
         MockDirectoryHandler.prototype.readJSON = function (dir, name) {

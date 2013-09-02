@@ -62,6 +62,24 @@ module.exports = function (grunt) {
 
 Invoking the task to push the content in the `root` folder is as simple as invoking `grunt` from the root of your project.
 
+If the folder passed to the task contains files you don't want to post to Sling, you can exclude them by specifying exact file names or file patterns, as shown below.
+
+```
+module.exports = function (grunt) {
+    grunt.initConfig({
+        slingPost: {
+            options: {
+                exclude: [".svn", "*.txt"]
+            }
+        }
+    });
+
+    grunt.loadNpmTasks("grunt-sling-content");
+
+    grunt.registerTask("default", ["slingPost"]);
+};
+```
+
 ### Options
 
 The `slingPost` task accepts the following options:
@@ -70,6 +88,7 @@ The `slingPost` task accepts the following options:
 -	`port`: integer, the port name of the Sling instance. Defaults to `8080`.
 -	`user`:	String, the name of a user which has enough privileges to access the post servlet. Defaults to `admin`.
 -	`pass`: String, the password for the user specified in the `user` option. Defaults to `admin`.
+-   `exclude`: String or Array of Strings, file names or patterns to be excluded from processing. Defaults to the empty array (nothing will be excluded).
 
 ## Importing content
 
