@@ -166,7 +166,7 @@ DirectoryHandler.prototype.getDescriptors = function() {
  * @return {Object}      Parsed JSON object.
  */
 DirectoryHandler.prototype.readJSON = function(directory, name) {
-    return self.task.grunt.file.readJSON(path.join(directory, name));
+    return this.task.grunt.file.readJSON(path.join(directory, name));
 };
 
 /**
