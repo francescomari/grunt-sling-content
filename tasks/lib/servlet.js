@@ -149,6 +149,8 @@ Post.prototype.create = function (path, properties, callback) {
     names.forEach(function (name) {
         appendProperty(form, name, properties[name]);
     });
+
+    req.setHeader('Content-Length', form.getLengthSync(false));
 };
 
 /**
