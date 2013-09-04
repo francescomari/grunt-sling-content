@@ -51,8 +51,9 @@ function normalizeProperties(properties) {
  * @param  {Object} form Form to append the properties to.
  * @param  {String} name Name of the property.
  * @param  {Object} value Value of the property.
+ * @param  {Object} [options] property for form element is optional
  */
-function appendProperty(form, name, value) {
+function appendProperty(form, name, value, options) {
     if (util.isArray(value)) {
         value.forEach(function (value) {
             form.append(name, value);
@@ -62,7 +63,7 @@ function appendProperty(form, name, value) {
         form.append(name, value ? "true" : "false");
     }
     else {
-        form.append(name, value);
+        form.append(name, value, options);
     }
 }
 
@@ -174,7 +175,9 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
 
     var name = path.basename(file);
 
-    appendProperty(form, "./" + name, fs.createReadStream(file));
+    appendProperty(form, "./" + name, fs.createReadStream(file), {
+      knownLength:fs.statSync(file).size
+    });
 
     // Add request properties
 
@@ -183,6 +186,7 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
     Object.keys(properties).forEach(function (key) {
         appendProperty(form, "./" + name + "/" + key, properties[key]);
     });
+    req.setHeader('Content-Length', form.getLengthSync(false));
 };
 
 /**
