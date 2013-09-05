@@ -178,7 +178,7 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
     var name = path.basename(file);
 
     appendProperty(form, "./" + name, fs.createReadStream(file), {
-      knownLength:fs.statSync(file).size
+        knownLength:fs.statSync(file).size
     });
 
     // Add request properties
@@ -188,6 +188,7 @@ Post.prototype.createFile = function (parent, file, properties, callback) {
     Object.keys(properties).forEach(function (key) {
         appendProperty(form, "./" + name + "/" + key, properties[key]);
     });
+    
     req.setHeader('Content-Length', form.getLengthSync(false));
 };
 
